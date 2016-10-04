@@ -3,6 +3,7 @@ import {render} from 'react-dom';
 import DayView from './day';
 import MainNavView from './mainNav';
 import LeftNavView from './leftNav';
+import $ from 'jquery';
 
 class App extends React.Component {
     render() {
