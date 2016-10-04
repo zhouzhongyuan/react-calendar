@@ -12,8 +12,6 @@ export default class DayView extends React.Component {
         }
         return (
             <section className="time-event" style={{
-                width:'100%',
-                flex:1,
                 overflow: 'scroll'
             }}>
                 <section className="hour-number">{hourNumberList}</section>
