@@ -2,52 +2,80 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 
+var flag = false;
+var topOfTimeEvent;
+var scrollTopOfTimeEvent;
+var startTop;
+var clipHeight;
+var clickFlag = true;
 export default class DayView extends React.Component {
     handleMouseDown (e){
-        var hourMarker = ReactDOM.findDOMNode(this.refs.hourMarker);
-        var hourEvent = ReactDOM.findDOMNode(this.refs.hourEvent);
+        clickFlag = true;
+        flag = true;
+        clipHeight = 0;
+        topOfTimeEvent = 0;
+        scrollTopOfTimeEvent = 0;
+        startTop = 0;
 
-
+        //取得鼠标点击点距离scrllable time-event的距离
         var timeEvent = $('.time-event');
         var timeEventPosition = timeEvent.position();
-        var topOfTimeEvent = timeEventPosition.top;
+        topOfTimeEvent = timeEventPosition.top;
         var self = this;
-
-        var scrollTopOfTimeEvent = $('.time-event').scrollTop();
+        scrollTopOfTimeEvent = $('.time-event').scrollTop();
         var clientY = e.clientY;
-        var startTop = clientY - topOfTimeEvent + scrollTopOfTimeEvent;
-        var startBlockTop = (Math.floor(startTop / 42)) * 42;
-        console.log(startBlockTop);
-
-
+        startTop = clientY - topOfTimeEvent + scrollTopOfTimeEvent;
+        var startBlockTop = (Math.floor(startTop / 21)) * 21;
         var clipWrapper = ReactDOM.findDOMNode(self.refs.clipWrapper);
-        $(clipWrapper).show();
         $(clipWrapper).css({ top: `${startBlockTop}px` });
-
-        $(hourMarker).on('mousemove',function (e) {
+        $(clipWrapper).height(0);
+        $(clipWrapper).show();
+    }
+    handleMouseMove(e) {
+        if (flag){
+            clickFlag = false;
             var clientY = e.clientY;
             var relativeTop = clientY - topOfTimeEvent + scrollTopOfTimeEvent;
             var relativeHeight = relativeTop - startTop;
-            // if(relativeHeight < 0){
-            //     var startBlockTop = (Math.floor(relativeTop / 42)) * 42;
-            //
-            //
-            //
-            // }else{
-                var clipHeight = Math.ceil(relativeHeight / 21)
-                clipHeight *= 21;
-            // }
 
+            clipHeight = Math.ceil(relativeHeight / 21)
+            clipHeight *= 21;
+            var clipWrapper = ReactDOM.findDOMNode(this.refs.clipWrapper);
             $(clipWrapper).height(clipHeight);
-            //TODO 处理向上drag
-
-
-        });
+        }
     }
     handleMouseUp (e) {
+        flag = false;
+    }
+    handleHourMarkerClick(e) {
+        if (clickFlag){
+            //取得鼠标点击点距离scrllable time-event的距离
+            var timeEvent = $('.time-event');
+            var timeEventPosition = timeEvent.position();
+            topOfTimeEvent = timeEventPosition.top;
+            var self = this;
+
+            scrollTopOfTimeEvent = $('.time-event').scrollTop();
+            var clientY = e.clientY;
+            startTop = clientY - topOfTimeEvent + scrollTopOfTimeEvent;
+            var startBlockTop = (Math.floor(startTop / 21)) * 21;
+
+            var clipWrapper = ReactDOM.findDOMNode(self.refs.clipWrapper);
+            $(clipWrapper).css({ top: `${startBlockTop}px` });
+            $(clipWrapper).height(42);
+            $(clipWrapper).show();
+        }
+    }
+
+
+    handleClipWrapperMouseUp(e){
+        flag = false;
         var hourMarker = ReactDOM.findDOMNode(this.refs.hourMarker);
-        $(hourMarker).off('mousemove');
-        console.log('mouse up');
+    }
+    handleClipWrapperClick(e) {
+        var clipWrapper = ReactDOM.findDOMNode(this.refs.clipWrapper);
+        $(clipWrapper).height(0);
+        $(clipWrapper).hide();
     }
     render() {
         var hourNumberList = [];
@@ -62,14 +90,21 @@ export default class DayView extends React.Component {
             <section
                 className="time-event"
             >
-                <section className="hour-number">{hourNumberList}</section>
+                <section className="hour-number">
+                    {hourNumberList}
+                </section>
                 <section className="hour-marker-event">
                     <section
                         ref="hourMarker"
                         className="hour-marker"
-                        onMouseDown = {(e) => {this.handleMouseDown(e)}}
-                        onMouseUp = {() => {this.handleMouseUp()}}
-                    >{hourMarkerList}</section>
+                        onMouseDown = {(e) =>   {this.handleMouseDown(e)}}
+                        onMouseMove = {(e) =>   {this.handleMouseMove(e)}}
+                        onMouseUp = {(e) =>     {this.handleMouseUp(e)}}
+                        onClick = {(e) =>     {this.handleHourMarkerClick(e)}}
+
+                    >
+                        {hourMarkerList}
+                    </section>
                     <section
                         className="hour-event"
                         ref="hourEvent"
@@ -77,11 +112,8 @@ export default class DayView extends React.Component {
                     <div
                         className="clip-wrapper"
                         ref="clipWrapper"
-                        style = {{
-                            display:'none',
-                            backgroundColor : '#7BD148',
-                            position: 'absolute',
-                        }}
+                        onClick = {(e) =>     {this.handleClipWrapperClick(e)}}
+                        onMouseUp = {(e) =>     {this.handleClipWrapperMouseUp(e)}}
                     ></div>
                 </section>
 

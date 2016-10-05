@@ -60,5 +60,10 @@ body {
 }
 
 .clip-wrapper {
-    width: 100%;
+    width: 99%;
+    display: none;
+    background-color : #7BD148;
+    position: absolute;
+    cursor: pointer;
+    opacity: .8;
 }
